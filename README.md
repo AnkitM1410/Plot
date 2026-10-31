@@ -1,6 +1,6 @@
-# BTC 4-Year Cycle Plot & Tweet Bot
+# BTC 4-Year Cycle Plot & GitHub Pages
 
-Automated daily Bitcoin 4-year cycle chart generator that tweets updated plots to Twitter/X.
+Automated daily Bitcoin 4-year cycle chart generator deployed directly to GitHub Pages.
 
 ## What it does
 
@@ -9,11 +9,13 @@ Automated daily Bitcoin 4-year cycle chart generator that tweets updated plots t
 3. **Generates** two chart types:
    - **Linear overlay** — All 4-year cycles overlaid on log scale with ATH, post-ATH ATL, and halving markers
    - **Polar plot** — Same data in a polar/circular projection
-4. **Tweets** both charts as a single post to Twitter/X
+4. **Builds `index.html`** displaying the generation date and timestamp at the top followed by both charts
+5. **Deploys** the charts and `index.html` to **GitHub Pages**
+6. **Stores workflow artifacts** with a **15-day retention period**
 
 ## Setup
 
-### GitHub Secrets (Required)
+### 1. GitHub Secrets (Required)
 
 Go to your repo → **Settings** → **Secrets and variables** → **Actions** → **New repository secret**:
 
@@ -21,20 +23,13 @@ Go to your repo → **Settings** → **Secrets and variables** → **Actions** �
 |---|---|
 | `KAGGLE_USERNAME` | Your Kaggle username |
 | `KAGGLE_KEY` | Your Kaggle API key (from kaggle.com/settings) |
-| `X_CONSUMER_KEY` | Twitter/X API Consumer Key (API Key) |
-| `X_CONSUMER_SECRET` | Twitter/X API Consumer Secret (API Secret) |
-| `X_ACCESS_TOKEN` | Twitter/X Access Token |
-| `X_ACCESS_TOKEN_SECRET` | Twitter/X Access Token Secret |
 
-### GitHub Variables (Optional)
+### 2. Enable GitHub Pages
 
-Go to **Settings** → **Secrets and variables** → **Actions** → **Variables** tab:
-
-| Variable Name | Description | Default |
-|---|---|---|
-| `TWEET_TEXT` | Custom tweet text (overrides auto-generated) | Auto-generated with price & date |
+Go to your repo → **Settings** → **Pages**:
+- Under **Build and deployment** → **Source**, select **GitHub Actions**.
 
 ## Schedule
 
-The bot runs daily at **03:00 UTC** (08:30 IST) via GitHub Actions cron.  
-You can also trigger it manually from the **Actions** tab → **Daily BTC Plot & Tweet** → **Run workflow**.
+The workflow runs daily at **03:00 UTC** (08:30 IST) via GitHub Actions cron.  
+You can also trigger it manually from the **Actions** tab → **Daily Cycle Plots & GitHub Pages Deploy** → **Run workflow**.

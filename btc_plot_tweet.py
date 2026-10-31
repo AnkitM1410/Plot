@@ -1,9 +1,8 @@
 """
-BTC 4-Year Cycle Plot Generator & Twitter Bot
-==============================================
+BTC 4-Year Cycle Plot Generator
+===============================
 Downloads BTC historical data from Kaggle, generates two cycle plots
-(linear overlay and polar), and tweets them as a single tweet with
-both images attached.
+(linear overlay and polar), and outputs them along with index.html for GitHub Pages.
 
 Designed to run daily via GitHub Actions cron job.
 """
@@ -19,7 +18,6 @@ matplotlib.use('Agg')  # Non-interactive backend for CI
 import matplotlib.pyplot as plt
 from matplotlib.ticker import LogLocator
 import requests
-from requests_oauthlib import OAuth1
 from datetime import datetime, timezone
 
 
@@ -418,75 +416,112 @@ def generate_polar_plot(df: pd.DataFrame, output_path: str) -> str:
     return output_path
 
 
+def generate_index_html(output_path: str = "index.html", generated_time: str = None) -> str:
+    """Generate index.html for GitHub Pages showing generation date and both plots."""
+    if not generated_time:
+        generated_time = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
+
+    html_content = f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BTC 4-Year Cycle Plots</title>
+    <style>
+        body {{
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #0f172a;
+            color: #f8fafc;
+            margin: 0;
+            padding: 2rem 1rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }}
+        .header {{
+            text-align: center;
+            margin-bottom: 2rem;
+        }}
+        .date-badge {{
+            display: inline-block;
+            background: #1e293b;
+            color: #38bdf8;
+            padding: 0.5rem 1rem;
+            border-radius: 9999px;
+            font-size: 0.95rem;
+            font-weight: 500;
+            border: 1px solid #334155;
+            margin-bottom: 1rem;
+        }}
+        h1 {{
+            margin: 0 0 0.5rem 0;
+            font-size: 2rem;
+            color: #f1f5f9;
+        }}
+        .container {{
+            display: flex;
+            flex-direction: column;
+            gap: 2.5rem;
+            max-width: 1200px;
+            width: 100%;
+            align-items: center;
+        }}
+        .card {{
+            background: #1e293b;
+            border-radius: 12px;
+            padding: 1rem;
+            border: 1px solid #334155;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.4);
+            width: 100%;
+            box-sizing: border-box;
+            text-align: center;
+        }}
+        .card h2 {{
+            margin-top: 0.5rem;
+            margin-bottom: 1rem;
+            font-size: 1.3rem;
+            color: #94a3b8;
+        }}
+        img {{
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            background: #ffffff;
+        }}
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="date-badge">Generated on: {generated_time}</div>
+        <h1>Bitcoin 4-Year Cycle Analysis</h1>
+    </div>
+    <div class="container">
+        <div class="card">
+            <h2>Linear Overlay (Log Scale)</h2>
+            <img src="btc_4y_linear.png" alt="BTC 4-Year Cycle Linear Overlay" />
+        </div>
+        <div class="card">
+            <h2>Polar Projection</h2>
+            <img src="btc_4y_polar.png" alt="BTC 4-Year Cycle Polar Plot" />
+        </div>
+    </div>
+</body>
+</html>
+"""
+    with open(output_path, "w", encoding="utf-8") as f:
+        f.write(html_content)
+
+    print(f"Index HTML generated at {output_path}")
+    return output_path
+
+
 # ---------------------------------------------------------------------------
-# 3. TWITTER / X UPLOAD
-# ---------------------------------------------------------------------------
-
-def upload_image_to_x(
-    consumer_key: str,
-    consumer_secret: str,
-    access_token: str,
-    access_token_secret: str,
-    image_path: str,
-) -> str | None:
-    """Upload a local image to Twitter and return the media_id_string."""
-    auth = OAuth1(consumer_key, consumer_secret, access_token, access_token_secret)
-    url = "https://upload.twitter.com/1.1/media/upload.json"
-    params = {"media_category": "tweet_image"}
-
-    filename = os.path.basename(image_path)
-    with open(image_path, "rb") as img:
-        files = {"media": (filename, img.read(), "image/png")}
-
-    response = requests.post(url, params=params, files=files, auth=auth)
-
-    if response.status_code in (200, 201, 202):
-        media_id = response.json().get("media_id_string")
-        print(f"Image uploaded: {image_path} -> media_id={media_id}")
-        return media_id
-    else:
-        print(f"Image upload failed ({response.status_code}): {response.text}")
-        if response.status_code == 401:
-            print("HINT: Twitter error 32 (Could not authenticate you) means:")
-            print("  1. The API Key / Secret or Access Token / Secret does not match the X Developer App.")
-            print("  2. Or permissions were changed to Read & Write AFTER tokens were generated (tokens must be regenerated).")
-            print("  3. Or Client ID/Secret was pasted instead of Consumer API Key/Secret.")
-        return None
-
-
-def post_tweet(
-    consumer_key: str,
-    consumer_secret: str,
-    access_token: str,
-    access_token_secret: str,
-    text: str,
-    media_ids: list[str],
-) -> bool:
-    """Post a tweet with attached media."""
-    url = "https://api.twitter.com/2/tweets"
-    auth = OAuth1(consumer_key, consumer_secret, access_token, access_token_secret)
-
-    payload = {"text": text}
-    if media_ids:
-        payload["media"] = {"media_ids": media_ids}
-
-    response = requests.post(url, json=payload, auth=auth)
-
-    if response.status_code == 201:
-        tweet_data = response.json()
-        print(f"Tweet posted successfully: {tweet_data}")
-        return True
-    else:
-        print(f"Tweet failed ({response.status_code}): {response.text}")
-        return False
-
-
-# ---------------------------------------------------------------------------
-# 4. MAIN ORCHESTRATOR
+# 3. MAIN ORCHESTRATOR
 # ---------------------------------------------------------------------------
 
 def main():
-    print(f"=== BTC Plot & Tweet Bot — {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M UTC')} ===")
+    gen_time_str = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
+    print(f"=== BTC Plot Generator — {gen_time_str} ===")
 
     # --- Download & process data ---
     csv_path = download_kaggle_data(output_dir=".")
@@ -495,70 +530,16 @@ def main():
 
     latest_price = df["price"].iloc[-1]
     latest_date = df["datetime"].iloc[-1].strftime("%b %d, %Y")
+    print(f"Latest BTC Price: ${latest_price:,.0f} on {latest_date}")
 
     # --- Generate plots ---
     linear_path = generate_linear_plot(df, "btc_4y_linear.png")
     polar_path = generate_polar_plot(df, "btc_4y_polar.png")
 
-    # --- Dry run check ---
-    dry_run = os.environ.get("DRY_RUN", "false").lower() in ("true", "1", "yes")
-    if dry_run:
-        print("DRY RUN enabled: plots generated successfully. Skipping Twitter/X upload and tweet.")
-        print("Done!")
-        return
+    # --- Generate index.html ---
+    generate_index_html("index.html", gen_time_str)
 
-    # --- Twitter credentials ---
-    consumer_key = os.environ.get("X_CONSUMER_KEY", "").strip()
-    consumer_secret = os.environ.get("X_CONSUMER_SECRET", "").strip()
-    access_token = os.environ.get("X_ACCESS_TOKEN", "").strip()
-    access_token_secret = os.environ.get("X_ACCESS_TOKEN_SECRET", "").strip()
-
-    if not all([consumer_key, consumer_secret, access_token, access_token_secret]):
-        print("ERROR: One or more Twitter/X credentials are empty or missing.")
-        sys.exit(1)
-
-    def mask(val: str) -> str:
-        if len(val) <= 6:
-            return "***"
-        return f"{val[:3]}...{val[-4:]} (len: {len(val)})"
-
-    print(f"Twitter credentials loaded:")
-    print(f"  X_CONSUMER_KEY:        {mask(consumer_key)}")
-    print(f"  X_CONSUMER_SECRET:     {mask(consumer_secret)}")
-    print(f"  X_ACCESS_TOKEN:        {mask(access_token)}")
-    print(f"  X_ACCESS_TOKEN_SECRET: {mask(access_token_secret)}")
-
-    # --- Upload images ---
-    media_id_1 = upload_image_to_x(
-        consumer_key, consumer_secret, access_token, access_token_secret, linear_path
-    )
-    media_id_2 = upload_image_to_x(
-        consumer_key, consumer_secret, access_token, access_token_secret, polar_path
-    )
-
-    media_ids = [mid for mid in [media_id_1, media_id_2] if mid is not None]
-
-    if not media_ids:
-        print("ERROR: No images were uploaded. Aborting tweet.")
-        sys.exit(1)
-
-    # --- Tweet ---
-    raw_tweet_text = os.environ.get("TWEET_TEXT", "").strip()
-    tweet_text = (
-        raw_tweet_text
-        if raw_tweet_text
-        else f"\U0001f4ca BTC 4-Year Cycle Update | ${latest_price:,.0f} | {latest_date}"
-    )
-
-    success = post_tweet(
-        consumer_key, consumer_secret, access_token, access_token_secret,
-        tweet_text, media_ids
-    )
-
-    if not success:
-        sys.exit(1)
-
-    print("Done!")
+    print("All plots and index.html generated successfully!")
 
 
 if __name__ == "__main__":

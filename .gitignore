@@ -4,6 +4,9 @@ x_bots/
 
 # Python
 test_twitter.py
+test_browser_tweet.py
+x_session.json
+.oauth2_token.json
 __pycache__/
 *.py[cod]
 *$py.class
