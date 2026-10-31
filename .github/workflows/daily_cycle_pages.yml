@@ -47,7 +47,7 @@ jobs:
           mkdir -p _site
           cp btc_4y_linear.png btc_4y_polar.png index.html _site/
 
-      - name: Upload Artifacts (Retention: 15 days)
+      - name: "Upload Artifacts (Retention: 15 days)"
         if: always()
         uses: actions/upload-artifact@v4
         with:
