@@ -1,4 +1,4 @@
-name: Daily Cycle Plots & GitHub Pages Deploy
+name: Plots & GitHub Pages Deploy
 
 on:
   schedule:
