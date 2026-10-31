@@ -38,6 +38,7 @@ jobs:
         env:
           KAGGLE_USERNAME: ${{ secrets.KAGGLE_USERNAME }}
           KAGGLE_KEY: ${{ secrets.KAGGLE_KEY }}
+          GITHUB_EVENT_NAME: ${{ github.event_name }}
         run: python btc_plot_tweet.py
 
       - name: Prepare GitHub Pages directory

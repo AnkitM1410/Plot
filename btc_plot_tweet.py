@@ -416,8 +416,8 @@ def generate_polar_plot(df: pd.DataFrame, output_path: str) -> str:
     return output_path
 
 
-def generate_index_html(output_path: str = "index.html", generated_time: str = None) -> str:
-    """Generate index.html for GitHub Pages showing generation date and both plots."""
+def generate_index_html(output_path: str = "index.html", generated_time: str = None, trigger_type: str = "Manual Trigger") -> str:
+    """Generate a clean, minimal index.html showing generation date and trigger source."""
     if not generated_time:
         generated_time = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
 
@@ -426,92 +426,115 @@ def generate_index_html(output_path: str = "index.html", generated_time: str = N
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BTC 4-Year Cycle Plots</title>
+    <title>Bitcoin 4-Year Cycle Analysis</title>
     <style>
-        body {{
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: #0f172a;
-            color: #f8fafc;
+        :root {{
+            --bg: #090d16;
+            --surface: #111827;
+            --border: #1f2937;
+            --text-main: #f9fafb;
+            --text-muted: #9ca3af;
+            --badge-bg: #1e293b;
+            --badge-text: #38bdf8;
+            --badge-border: #334155;
+        }}
+        * {{
+            box-sizing: border-box;
             margin: 0;
-            padding: 2rem 1rem;
+            padding: 0;
+        }}
+        body {{
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg);
+            color: var(--text-main);
+            min-height: 100vh;
+            padding: 2.5rem 1rem;
             display: flex;
             flex-direction: column;
             align-items: center;
         }}
-        .header {{
+        header {{
             text-align: center;
             margin-bottom: 2rem;
+            max-width: 800px;
         }}
-        .date-badge {{
-            display: inline-block;
-            background: #1e293b;
-            color: #38bdf8;
-            padding: 0.5rem 1rem;
-            border-radius: 9999px;
-            font-size: 0.95rem;
-            font-weight: 500;
-            border: 1px solid #334155;
-            margin-bottom: 1rem;
+        .meta-bar {{
+            display: inline-flex;
+            align-items: center;
+            gap: 0.6rem;
+            background: var(--badge-bg);
+            border: 1px solid var(--badge-border);
+            padding: 0.35rem 0.85rem;
+            border-radius: 999px;
+            font-size: 0.82rem;
+            color: var(--text-muted);
+            margin-bottom: 0.85rem;
+        }}
+        .meta-bar strong {{
+            color: var(--badge-text);
+            font-weight: 600;
+        }}
+        .dot {{
+            width: 4px;
+            height: 4px;
+            background: #64748b;
+            border-radius: 50%;
         }}
         h1 {{
-            margin: 0 0 0.5rem 0;
-            font-size: 2rem;
-            color: #f1f5f9;
+            font-size: 1.75rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            color: var(--text-main);
         }}
-        .container {{
+        main {{
             display: flex;
             flex-direction: column;
-            gap: 2.5rem;
-            max-width: 1200px;
+            gap: 2rem;
             width: 100%;
+            max-width: 1050px;
+        }}
+        .plot-box {{
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 0.75rem;
+            display: flex;
+            flex-direction: column;
             align-items: center;
         }}
-        .card {{
-            background: #1e293b;
-            border-radius: 12px;
-            padding: 1rem;
-            border: 1px solid #334155;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.4);
-            width: 100%;
-            box-sizing: border-box;
-            text-align: center;
-        }}
-        .card h2 {{
-            margin-top: 0.5rem;
-            margin-bottom: 1rem;
-            font-size: 1.3rem;
-            color: #94a3b8;
-        }}
         img {{
-            max-width: 100%;
+            width: 100%;
             height: auto;
-            border-radius: 8px;
+            border-radius: 6px;
+            display: block;
             background: #ffffff;
         }}
     </style>
 </head>
 <body>
-    <div class="header">
-        <div class="date-badge">Generated on: {generated_time}</div>
+    <header>
+        <div class="meta-bar">
+            <span>Last updated: <strong>{generated_time}</strong></span>
+            <span class="dot"></span>
+            <span>Source: <strong>{trigger_type}</strong></span>
+        </div>
         <h1>Bitcoin 4-Year Cycle Analysis</h1>
-    </div>
-    <div class="container">
-        <div class="card">
-            <h2>Linear Overlay (Log Scale)</h2>
-            <img src="btc_4y_linear.png" alt="BTC 4-Year Cycle Linear Overlay" />
+    </header>
+    <main>
+        <div class="plot-box">
+            <img src="btc_4y_linear.png" alt="BTC 4-Year Cycle Overlay (Log Scale)" loading="eager" />
         </div>
-        <div class="card">
-            <h2>Polar Projection</h2>
-            <img src="btc_4y_polar.png" alt="BTC 4-Year Cycle Polar Plot" />
+        <div class="plot-box">
+            <img src="btc_4y_polar.png" alt="BTC 4-Year Cycle Polar Projection" loading="lazy" />
         </div>
-    </div>
+    </main>
 </body>
 </html>
 """
     with open(output_path, "w", encoding="utf-8") as f:
         f.write(html_content)
 
-    print(f"Index HTML generated at {output_path}")
+    print(f"Index HTML generated at {output_path} (Trigger: {trigger_type})")
     return output_path
 
 
@@ -521,7 +544,18 @@ def generate_index_html(output_path: str = "index.html", generated_time: str = N
 
 def main():
     gen_time_str = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
-    print(f"=== BTC Plot Generator — {gen_time_str} ===")
+
+    event_name = os.environ.get("GITHUB_EVENT_NAME", "").strip().lower()
+    if event_name == "schedule":
+        trigger_type = "Scheduled Run"
+    elif event_name == "workflow_dispatch":
+        trigger_type = "Manual Trigger"
+    elif event_name:
+        trigger_type = f"Trigger: {event_name.capitalize()}"
+    else:
+        trigger_type = "Manual Trigger"
+
+    print(f"=== BTC Plot Generator — {gen_time_str} | {trigger_type} ===")
 
     # --- Download & process data ---
     csv_path = download_kaggle_data(output_dir=".")
@@ -537,7 +571,7 @@ def main():
     polar_path = generate_polar_plot(df, "btc_4y_polar.png")
 
     # --- Generate index.html ---
-    generate_index_html("index.html", gen_time_str)
+    generate_index_html("index.html", gen_time_str, trigger_type=trigger_type)
 
     print("All plots and index.html generated successfully!")
 
