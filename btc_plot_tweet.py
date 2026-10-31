@@ -494,6 +494,13 @@ def main():
     linear_path = generate_linear_plot(df, "btc_4y_linear.png")
     polar_path = generate_polar_plot(df, "btc_4y_polar.png")
 
+    # --- Dry run check ---
+    dry_run = os.environ.get("DRY_RUN", "false").lower() in ("true", "1", "yes")
+    if dry_run:
+        print("DRY RUN enabled: plots generated successfully. Skipping Twitter/X upload and tweet.")
+        print("Done!")
+        return
+
     # --- Twitter credentials ---
     consumer_key = os.environ.get("X_CONSUMER_KEY")
     consumer_secret = os.environ.get("X_CONSUMER_SECRET")
@@ -519,9 +526,11 @@ def main():
         sys.exit(1)
 
     # --- Tweet ---
-    tweet_text = os.environ.get(
-        "TWEET_TEXT",
-        f"\U0001f4ca BTC 4-Year Cycle Update | ${latest_price:,.0f} | {latest_date}"
+    raw_tweet_text = os.environ.get("TWEET_TEXT", "").strip()
+    tweet_text = (
+        raw_tweet_text
+        if raw_tweet_text
+        else f"\U0001f4ca BTC 4-Year Cycle Update | ${latest_price:,.0f} | {latest_date}"
     )
 
     success = post_tweet(

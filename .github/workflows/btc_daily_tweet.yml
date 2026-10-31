@@ -4,7 +4,18 @@ on:
   schedule:
     # Runs daily at 03:00 UTC (08:30 IST)
     - cron: '0 3 * * *'
-  workflow_dispatch:  # Allow manual trigger
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Dry Run (generate plots without posting to X)'
+        required: false
+        type: boolean
+        default: false
+      custom_tweet_text:
+        description: 'Optional custom tweet text (leave blank for default)'
+        required: false
+        type: string
+        default: ''
 
 jobs:
   plot-and-tweet:
@@ -30,5 +41,16 @@ jobs:
           X_CONSUMER_SECRET: ${{ secrets.X_CONSUMER_SECRET }}
           X_ACCESS_TOKEN: ${{ secrets.X_ACCESS_TOKEN }}
           X_ACCESS_TOKEN_SECRET: ${{ secrets.X_ACCESS_TOKEN_SECRET }}
-          TWEET_TEXT: ${{ vars.TWEET_TEXT }}
+          TWEET_TEXT: ${{ inputs.custom_tweet_text || vars.TWEET_TEXT }}
+          DRY_RUN: ${{ inputs.dry_run }}
         run: python btc_plot_tweet.py
+
+      - name: Upload Generated Plots as Artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: btc-cycle-plots
+          path: |
+            btc_4y_linear.png
+            btc_4y_polar.png
+          if-no-files-found: ignore
