@@ -20,7 +20,7 @@ import matplotlib.pyplot as plt
 from matplotlib.ticker import LogLocator
 import requests
 from requests_oauthlib import OAuth1
-from datetime import datetime
+from datetime import datetime, timezone
 
 
 # ---------------------------------------------------------------------------
@@ -480,7 +480,7 @@ def post_tweet(
 # ---------------------------------------------------------------------------
 
 def main():
-    print(f"=== BTC Plot & Tweet Bot — {datetime.utcnow().strftime('%Y-%m-%d %H:%M UTC')} ===")
+    print(f"=== BTC Plot & Tweet Bot — {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M UTC')} ===")
 
     # --- Download & process data ---
     csv_path = download_kaggle_data(output_dir=".")

@@ -20,6 +20,7 @@ on:
 jobs:
   plot-and-tweet:
     runs-on: ubuntu-latest
+    environment: For_Actions
 
     steps:
       - name: Checkout repository
