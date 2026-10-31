@@ -1,0 +1,38 @@
+# Exclude original files
+BTC_ploting (2).ipynb
+x_bots/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg-info/
+dist/
+build/
+*.egg
+
+# Virtual environments
+.env
+.venv
+env/
+venv/
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE
+.vscode/
+.idea/
+
+# Generated plots (will be regenerated)
+*.png
+
+# Data files
+*.csv
+*.zip
+
+# Agents
+.agents/

@@ -1,0 +1,34 @@
+name: Daily BTC Plot & Tweet
+
+on:
+  schedule:
+    # Runs daily at 03:00 UTC (08:30 IST)
+    - cron: '0 3 * * *'
+  workflow_dispatch:  # Allow manual trigger
+
+jobs:
+  plot-and-tweet:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run BTC Plot & Tweet Bot
+        env:
+          KAGGLE_USERNAME: ${{ secrets.KAGGLE_USERNAME }}
+          KAGGLE_KEY: ${{ secrets.KAGGLE_KEY }}
+          X_CONSUMER_KEY: ${{ secrets.X_CONSUMER_KEY }}
+          X_CONSUMER_SECRET: ${{ secrets.X_CONSUMER_SECRET }}
+          X_ACCESS_TOKEN: ${{ secrets.X_ACCESS_TOKEN }}
+          X_ACCESS_TOKEN_SECRET: ${{ secrets.X_ACCESS_TOKEN_SECRET }}
+          TWEET_TEXT: ${{ vars.TWEET_TEXT }}
+        run: python btc_plot_tweet.py
