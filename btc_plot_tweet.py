@@ -434,8 +434,9 @@ def upload_image_to_x(
     url = "https://upload.twitter.com/1.1/media/upload.json"
     params = {"media_category": "tweet_image"}
 
+    filename = os.path.basename(image_path)
     with open(image_path, "rb") as img:
-        files = {"media": img.read()}
+        files = {"media": (filename, img.read(), "image/png")}
 
     response = requests.post(url, params=params, files=files, auth=auth)
 
@@ -445,6 +446,11 @@ def upload_image_to_x(
         return media_id
     else:
         print(f"Image upload failed ({response.status_code}): {response.text}")
+        if response.status_code == 401:
+            print("HINT: Twitter error 32 (Could not authenticate you) means:")
+            print("  1. The API Key / Secret or Access Token / Secret does not match the X Developer App.")
+            print("  2. Or permissions were changed to Read & Write AFTER tokens were generated (tokens must be regenerated).")
+            print("  3. Or Client ID/Secret was pasted instead of Consumer API Key/Secret.")
         return None
 
 
@@ -502,14 +508,25 @@ def main():
         return
 
     # --- Twitter credentials ---
-    consumer_key = os.environ.get("X_CONSUMER_KEY")
-    consumer_secret = os.environ.get("X_CONSUMER_SECRET")
-    access_token = os.environ.get("X_ACCESS_TOKEN")
-    access_token_secret = os.environ.get("X_ACCESS_TOKEN_SECRET")
+    consumer_key = os.environ.get("X_CONSUMER_KEY", "").strip()
+    consumer_secret = os.environ.get("X_CONSUMER_SECRET", "").strip()
+    access_token = os.environ.get("X_ACCESS_TOKEN", "").strip()
+    access_token_secret = os.environ.get("X_ACCESS_TOKEN_SECRET", "").strip()
 
     if not all([consumer_key, consumer_secret, access_token, access_token_secret]):
-        print("ERROR: Twitter/X credentials not set. Skipping tweet.")
+        print("ERROR: One or more Twitter/X credentials are empty or missing.")
         sys.exit(1)
+
+    def mask(val: str) -> str:
+        if len(val) <= 6:
+            return "***"
+        return f"{val[:3]}...{val[-4:]} (len: {len(val)})"
+
+    print(f"Twitter credentials loaded:")
+    print(f"  X_CONSUMER_KEY:        {mask(consumer_key)}")
+    print(f"  X_CONSUMER_SECRET:     {mask(consumer_secret)}")
+    print(f"  X_ACCESS_TOKEN:        {mask(access_token)}")
+    print(f"  X_ACCESS_TOKEN_SECRET: {mask(access_token_secret)}")
 
     # --- Upload images ---
     media_id_1 = upload_image_to_x(
