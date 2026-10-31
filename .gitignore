@@ -3,6 +3,7 @@ BTC_ploting (2).ipynb
 x_bots/
 
 # Python
+test_twitter.py
 __pycache__/
 *.py[cod]
 *$py.class
