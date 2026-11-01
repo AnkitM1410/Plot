@@ -417,7 +417,7 @@ def generate_polar_plot(df: pd.DataFrame, output_path: str) -> str:
 
 
 def generate_index_html(output_path: str = "index.html", generated_time: str = None, trigger_type: str = "Manual Trigger") -> str:
-    """Generate raw HTML without CSS containing metadata text and images."""
+    """Generate HTML with consistent, responsive image display width."""
     if not generated_time:
         generated_time = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
 
@@ -425,7 +425,16 @@ def generate_index_html(output_path: str = "index.html", generated_time: str = N
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bitcoin 4-Year Cycle Analysis</title>
+    <style>
+        img {{
+            max-width: 1000px;
+            width: 100%;
+            height: auto;
+            display: block;
+        }}
+    </style>
 </head>
 <body>
     <p>Last updated: {generated_time} | Source: {trigger_type}</p>
