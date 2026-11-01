@@ -417,7 +417,7 @@ def generate_polar_plot(df: pd.DataFrame, output_path: str) -> str:
 
 
 def generate_index_html(output_path: str = "index.html", generated_time: str = None, trigger_type: str = "Manual Trigger") -> str:
-    """Generate a clean, minimal index.html showing generation date and trigger source."""
+    """Generate raw HTML without CSS containing metadata text and images."""
     if not generated_time:
         generated_time = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
 
@@ -425,109 +425,13 @@ def generate_index_html(output_path: str = "index.html", generated_time: str = N
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bitcoin 4-Year Cycle Analysis</title>
-    <style>
-        :root {{
-            --bg: #090d16;
-            --surface: #111827;
-            --border: #1f2937;
-            --text-main: #f9fafb;
-            --text-muted: #9ca3af;
-            --badge-bg: #1e293b;
-            --badge-text: #38bdf8;
-            --badge-border: #334155;
-        }}
-        * {{
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }}
-        body {{
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background-color: var(--bg);
-            color: var(--text-main);
-            min-height: 100vh;
-            padding: 2.5rem 1rem;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }}
-        header {{
-            text-align: center;
-            margin-bottom: 2rem;
-            max-width: 800px;
-        }}
-        .meta-bar {{
-            display: inline-flex;
-            align-items: center;
-            gap: 0.6rem;
-            background: var(--badge-bg);
-            border: 1px solid var(--badge-border);
-            padding: 0.35rem 0.85rem;
-            border-radius: 999px;
-            font-size: 0.82rem;
-            color: var(--text-muted);
-            margin-bottom: 0.85rem;
-        }}
-        .meta-bar strong {{
-            color: var(--badge-text);
-            font-weight: 600;
-        }}
-        .dot {{
-            width: 4px;
-            height: 4px;
-            background: #64748b;
-            border-radius: 50%;
-        }}
-        h1 {{
-            font-size: 1.75rem;
-            font-weight: 700;
-            letter-spacing: -0.02em;
-            color: var(--text-main);
-        }}
-        main {{
-            display: flex;
-            flex-direction: column;
-            gap: 2rem;
-            width: 100%;
-            max-width: 1050px;
-        }}
-        .plot-box {{
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 10px;
-            padding: 0.75rem;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }}
-        img {{
-            width: 100%;
-            height: auto;
-            border-radius: 6px;
-            display: block;
-            background: #ffffff;
-        }}
-    </style>
 </head>
 <body>
-    <header>
-        <div class="meta-bar">
-            <span>Last updated: <strong>{generated_time}</strong></span>
-            <span class="dot"></span>
-            <span>Source: <strong>{trigger_type}</strong></span>
-        </div>
-        <h1>Bitcoin 4-Year Cycle Analysis</h1>
-    </header>
-    <main>
-        <div class="plot-box">
-            <img src="btc_4y_linear.png" alt="BTC 4-Year Cycle Overlay (Log Scale)" loading="eager" />
-        </div>
-        <div class="plot-box">
-            <img src="btc_4y_polar.png" alt="BTC 4-Year Cycle Polar Projection" loading="lazy" />
-        </div>
-    </main>
+    <p>Last updated: {generated_time} | Source: {trigger_type}</p>
+    <h1>Bitcoin 4-Year Cycle Analysis</h1>
+    <p><img src="btc_4y_linear.png" alt="BTC 4-Year Cycle Overlay (Log Scale)"></p>
+    <p><img src="btc_4y_polar.png" alt="BTC 4-Year Cycle Polar Projection"></p>
 </body>
 </html>
 """
