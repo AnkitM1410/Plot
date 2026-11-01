@@ -429,7 +429,6 @@ def generate_index_html(output_path: str = "index.html", generated_time: str = N
     <title>Bitcoin 4-Year Cycle Analysis</title>
     <style>
         img {{
-            max-width: 1000px;
             width: 100%;
             height: auto;
             display: block;
