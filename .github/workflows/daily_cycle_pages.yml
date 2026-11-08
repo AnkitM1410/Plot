@@ -3,7 +3,7 @@ name: Plots & GitHub Pages Deploy
 on:
   schedule:
     # Runs daily at 03:00 UTC (08:30 IST)
-    - cron: '15 9 * * *'
+    - cron: '45 3 * * *'
   workflow_dispatch:
 
 # Permissions needed to deploy to GitHub Pages
