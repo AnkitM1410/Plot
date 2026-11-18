@@ -199,9 +199,9 @@ def generate_linear_plot(df: pd.DataFrame, output_path: str) -> str:
             ax.scatter(
                 last_row["days_in_cycle"] / 365.25,
                 current_price,
-                c="green",
-                s=100,
-                marker="D",
+                c="orange",
+                s=40,
+                marker="s",
                 label="Current Price (% from ATH)",
                 zorder=4,
             )
