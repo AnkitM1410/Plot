@@ -121,6 +121,8 @@ def generate_linear_plot(df: pd.DataFrame, output_path: str) -> str:
 
     fig, ax = plt.subplots(figsize=(16, 8), dpi=200)
 
+    max_cycle = df["cycle"].max()
+
     for cycle, group in df.groupby("cycle"):
         # Plot cycle line
         ax.plot(
@@ -186,6 +188,38 @@ def generate_linear_plot(df: pd.DataFrame, output_path: str) -> str:
                     facecolor="white",
                     alpha=0.7,
                     edgecolor="none",
+                ),
+            )
+
+        # Current price vs cycle ATH (latest cycle only)
+        if cycle == max_cycle:
+            last_row = group.iloc[-1]
+            current_price = last_row["price"]
+            pct_from_ath = ((current_price - ath_row["price"]) / ath_row["price"]) * 100
+            ax.scatter(
+                last_row["days_in_cycle"] / 365.25,
+                current_price,
+                c="orange",
+                s=40,
+                marker="s",
+                label="Current Price (% from ATH)",
+                zorder=4,
+            )
+            ax.annotate(
+                f"${current_price:,.0f} ({pct_from_ath:+.1f}%)",
+                (last_row["days_in_cycle"] / 365.25, current_price),
+                textcoords="offset points",
+                xytext=(8, -12),
+                ha="left",
+                fontsize=7,
+                fontweight="bold",
+                color="green",
+                bbox=dict(
+                    boxstyle="round,pad=0.2",
+                    facecolor="white",
+                    alpha=0.85,
+                    edgecolor="green",
+                    linewidth=0.5,
                 ),
             )
 

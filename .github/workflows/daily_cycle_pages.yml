@@ -5,6 +5,9 @@ on:
     # Runs daily at 03:00 UTC (08:30 IST)
     - cron: '45 3 * * *'
   workflow_dispatch:
+  push:
+    branches:
+      - master
 
 # Permissions needed to deploy to GitHub Pages
 permissions:
